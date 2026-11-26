@@ -1,0 +1,19 @@
+name: mendd_ui
+description: "Mendd design system: brand colour tokens, theme, and shared widgets for the Mendd customer and Mendd Partner apps."
+version: 0.2.0
+repository: https://github.com/paulebe525/mendd-ui
+publish_to: 'none'
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.11.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
