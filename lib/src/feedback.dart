@@ -7,9 +7,15 @@ import 'tokens.dart';
 /// How long a save waits for the server before telling the person.
 const saveTimeout = Duration(seconds: 25);
 
-/// Texts the feedback helpers show. English defaults; apps pass translated ones.
+/// Texts the feedback helpers show. English defaults; each app sets [current] from
+/// its own translations (e.g. in MaterialApp.builder), so these messages follow the
+/// phone's language too.
 class MenddFeedbackText {
+  /// What [friendlyError], [SaveRunner] and [BusyButton] use when not told otherwise.
+  static MenddFeedbackText current = const MenddFeedbackText();
+
   const MenddFeedbackText({
+    this.saving = 'Saving…',
     this.notConfirmed = 'Not confirmed by the server yet. Check your internet connection, then try again.',
     this.refused = 'The server refused this change. Please check the details and try again.',
     this.offline = 'No internet connection. Please try again.',
@@ -17,13 +23,14 @@ class MenddFeedbackText {
     this.cancelled = 'Cancelled.',
     this.generic = 'Something went wrong.',
   });
-  final String notConfirmed, refused, offline, signedOut, cancelled, generic;
+  final String saving, notConfirmed, refused, offline, signedOut, cancelled, generic;
 }
 
 /// Plain-English error text. Keeps the error code in brackets so problems can be
 /// reported. Works with any error that has a `code` (Firebase errors) without
 /// depending on Firebase.
-String friendlyError(Object e, [MenddFeedbackText t = const MenddFeedbackText()]) {
+String friendlyError(Object e, [MenddFeedbackText? text]) {
+  final t = text ?? MenddFeedbackText.current;
   if (e is ArgumentError) return '${e.message}';
   String? code;
   try {
@@ -60,7 +67,7 @@ void showMessage(BuildContext context, String text, {bool error = false}) {
 /// server, then a clear success or error. ("A button press is not proof of success.")
 mixin SaveRunner<T extends StatefulWidget> on State<T> {
   bool busy = false;
-  MenddFeedbackText get feedbackText => const MenddFeedbackText();
+  MenddFeedbackText get feedbackText => MenddFeedbackText.current;
 
   /// Returns true only if the server confirmed the write.
   Future<bool> runSave(Future<void> Function() action, {required String success}) async {
@@ -84,6 +91,7 @@ mixin SaveRunner<T extends StatefulWidget> on State<T> {
 enum BusyButtonStyle { filled, outlined }
 
 /// A full-width, 48 dp button that shows a spinner and is disabled while [busy].
+/// While busy it shows [busyLabel], or "Saving…" ([MenddFeedbackText.current]).
 class BusyButton extends StatelessWidget {
   const BusyButton({
     super.key,
@@ -103,7 +111,7 @@ class BusyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Text(busy ? (busyLabel ?? label) : label);
+    final child = Text(busy ? (busyLabel ?? MenddFeedbackText.current.saving) : label);
     final leading = busy
         ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
         : (icon == null ? null : Icon(icon));

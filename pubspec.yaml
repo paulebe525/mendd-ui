@@ -1,6 +1,6 @@
 name: mendd_ui
 description: "Mendd design system: brand colour tokens, theme, and shared widgets for the Mendd customer and Mendd Partner apps."
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/paulebe525/mendd-ui
 publish_to: 'none'
 

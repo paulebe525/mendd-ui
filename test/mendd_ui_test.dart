@@ -118,6 +118,19 @@ void main() {
       expect(find.textContaining('TEST MODE'), findsNothing);
     });
 
+    testWidgets('translated texts: set once, used by friendlyError, SaveRunner and BusyButton', (t) async {
+      addTearDown(() => MenddFeedbackText.current = const MenddFeedbackText());
+      MenddFeedbackText.current = const MenddFeedbackText(saving: 'சேமிக்கிறது…', offline: 'இணையம் இல்லை.');
+      expect(friendlyError(_Coded('unavailable')), 'இணையம் இல்லை. (unavailable)');
+      await t.pumpWidget(app(MenddBrand.customer, BusyButton(busy: true, onPressed: () {}, label: 'Save')));
+      expect(find.text('சேமிக்கிறது…'), findsOneWidget);
+    });
+
+    testWidgets('BusyButton without busyLabel shows "Saving…" while busy', (t) async {
+      await t.pumpWidget(app(MenddBrand.partner, BusyButton(busy: true, onPressed: () {}, label: 'Save')));
+      expect(find.text('Saving…'), findsOneWidget);
+    });
+
     test('friendlyError maps codes without depending on Firebase', () {
       expect(friendlyError(_Coded('permission-denied')), startsWith('The server refused'));
       expect(friendlyError(_Coded('unavailable')), contains('(unavailable)'));
